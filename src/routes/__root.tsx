@@ -8,11 +8,12 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TechReticleCursor } from "@/components/landing/TechReticleCursor";
 import { InteractiveBackground } from "@/components/landing/InteractiveBackground";
+import { CommandPalette } from "@/components/CommandPalette";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -125,11 +126,30 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((prev) => !prev);
+      }
+    };
+    const onOpenCustom = () => setPaletteOpen(true);
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("open-command-palette", onOpenCustom);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("open-command-palette", onOpenCustom);
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <InteractiveBackground />
       <TechReticleCursor />
+      <CommandPalette isOpen={paletteOpen} onClose={() => setPaletteOpen(false)} />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <Toaster position="bottom-right" />

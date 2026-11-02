@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Github, Menu, X } from "lucide-react";
+import { Github, Menu, Search, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { GITHUB_URL, sectionLinks } from "./links";
@@ -34,7 +34,18 @@ export function SiteNav() {
           ))}
         </ul>
 
-        <div className="ml-auto hidden items-center gap-2 md:ml-0 md:flex">
+        <div className="ml-auto hidden items-center gap-2.5 md:ml-0 md:flex">
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent("open-command-palette"))}
+            className="flex items-center gap-2 rounded-md border border-border bg-secondary/50 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-slate-300 hover:text-foreground hover:bg-secondary"
+            title="Open Command Palette (Cmd + K)"
+          >
+            <Search className="size-3.5" />
+            <span className="hidden lg:inline">Search & Actions</span>
+            <kbd className="rounded border border-border bg-card px-1.5 py-0.5 font-mono text-[10px]">
+              ⌘K
+            </kbd>
+          </button>
           <a
             href={GITHUB_URL}
             target="_blank"
@@ -62,6 +73,20 @@ export function SiteNav() {
       </nav>
 
       <div className={cn("border-t border-border px-5 py-4 md:hidden", !open && "hidden")}>
+        <button
+          onClick={() => {
+            setOpen(false);
+            window.dispatchEvent(new CustomEvent("open-command-palette"));
+          }}
+          className="mb-3 flex w-full items-center justify-between rounded-md border border-border bg-secondary/50 px-3 py-2 text-xs text-muted-foreground"
+        >
+          <span className="flex items-center gap-2">
+            <Search className="size-3.5" /> Search commands...
+          </span>
+          <kbd className="rounded border border-border bg-card px-1.5 py-0.5 font-mono text-[10px]">
+            ⌘K
+          </kbd>
+        </button>
         <ul className="space-y-1">
           {sectionLinks.map((l) => (
             <li key={l.id}>

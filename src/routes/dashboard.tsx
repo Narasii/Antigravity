@@ -1,7 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Cpu, Database, Gauge, Pause, Play, RefreshCw, Terminal, Trash2, Zap } from "lucide-react";
+import {
+  ArrowLeft,
+  Cpu,
+  Database,
+  Gauge,
+  Pause,
+  Play,
+  RefreshCw,
+  Terminal,
+  Trash2,
+  Zap,
+  Download,
+  FileText,
+  Search,
+} from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import {
   clampControl,
@@ -171,6 +185,8 @@ function Dashboard() {
   const [draft, setDraft] = useState<PipelineConfig>(defaultConfig);
   const [applied, setApplied] = useState<PipelineConfig>(defaultConfig);
   const [logs, setLogs] = useState<LogLine[]>(() => initialLogs.map((l, i) => ({ ...l, id: i })));
+  const [logFilter, setLogFilter] = useState<"ALL" | "INFO" | "WARN" | "DEBUG">("ALL");
+  const [logSearch, setLogSearch] = useState("");
   const nextId = useRef(initialLogs.length);
   const batch = useRef(143);
   const termRef = useRef<HTMLDivElement>(null);
@@ -179,6 +195,62 @@ function Dashboard() {
 
   const active = state === "active";
   const dirty = (Object.keys(draft) as (keyof PipelineConfig)[]).some((k) => draft[k] !== applied[k]);
+
+  const filteredLogs = useMemo(() => {
+    return logs.filter((l) => {
+      if (logFilter !== "ALL" && l.level !== logFilter) return false;
+      if (logSearch.trim()) {
+        const q = logSearch.toLowerCase();
+        return l.text.toLowerCase().includes(q) || l.level.toLowerCase().includes(q);
+      }
+      return true;
+    });
+  }, [logs, logFilter, logSearch]);
+
+  const exportTelemetry = () => {
+    const data = {
+      timestamp: new Date().toISOString(),
+      workstation: "Workstation-01",
+      streamState: state,
+      metrics: {
+        latencyMs: metrics.latency,
+        bandwidthGbps: metrics.bandwidth,
+        cacheHitPct: metrics.cacheHit,
+      },
+      pipelineConfig: applied,
+      logs: logs.map(({ time, level, text }) => ({ time, level, text })),
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `nsx-telemetry-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Telemetry log exported as JSON");
+  };
+
+  const copySnapshotReport = async () => {
+    const report = [
+      `### NeuroStream-X MLSys Telemetry Snapshot`,
+      `- **Generated**: ${new Date().toLocaleString()}`,
+      `- **Status**: ${active ? "Streaming (Active)" : "Paused"}`,
+      `- **CPU-to-GPU Latency**: ${metrics.latency.toFixed(2)} ms`,
+      `- **Mmap Read Bandwidth**: ${metrics.bandwidth.toFixed(1)} GB/s`,
+      `- **Page Cache Hit**: ${metrics.cacheHit.toFixed(1)} %`,
+      `- **Pipeline Config**: batch=${applied.batchSize} · chunkWindow=${applied.chunkWindow} MiB · lr=${formatLr(applied.learningRate)}`,
+      `- **Kernel Logs Recorded**: ${logs.length} lines`,
+      `*Zero-Copy memory-mapped DMA streaming bypass active.*`,
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(report);
+      toast.success("Benchmark snapshot report copied to clipboard");
+    } catch {
+      toast.error("Failed to copy report to clipboard");
+    }
+  };
 
   const log = (level: LogLine["level"], text: string) =>
     setLogs((ls) => [...ls, { id: nextId.current++, time: timestamp(), level, text }].slice(-MAX_LOGS));
@@ -247,29 +319,49 @@ function Dashboard() {
           </h1>
           <p className="mt-1 font-mono text-xs text-muted-foreground">zero-copy mmap · pinned host ring · CUDA 12.4</p>
         </div>
-        <div className="flex items-center gap-3">
-        <span
-          className={cn(
-            "flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-xs transition-colors duration-500",
-            active ? "border-primary/40 bg-primary/10 text-primary" : "border-warning/40 bg-warning/10 text-warning",
-          )}
-        >
-          <span className={cn("size-2 rounded-full", active ? "bg-primary animate-pulse" : "bg-warning")} />
-          Workstation-01 [{active ? "Active" : "Paused"}]
-        </span>
-        <button
-          onClick={toggleStream}
-          aria-pressed={active}
-          className={cn(
-            "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-500",
-            active
-              ? "bg-primary text-primary-foreground hover:bg-primary/90"
-              : "bg-warning text-warning-foreground hover:bg-warning/90",
-          )}
-        >
-          {active ? <Pause className="size-4" /> : <Play className="size-4" />}
-          {active ? "Active (Streaming)" : "Paused"}
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Snapshot Report Button */}
+          <button
+            onClick={copySnapshotReport}
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary hover:border-slate-300 transition-colors"
+            title="Copy formatted markdown telemetry report to clipboard"
+          >
+            <FileText className="size-3.5 text-primary" />
+            <span className="hidden sm:inline">Snapshot</span>
+          </button>
+
+          {/* Export JSON Button */}
+          <button
+            onClick={exportTelemetry}
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary hover:border-slate-300 transition-colors"
+            title="Download telemetry and kernel log stream as JSON"
+          >
+            <Download className="size-3.5 text-primary" />
+            <span className="hidden sm:inline">Export</span>
+          </button>
+
+          <span
+            className={cn(
+              "flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-xs transition-colors duration-500",
+              active ? "border-primary/40 bg-primary/10 text-primary" : "border-warning/40 bg-warning/10 text-warning",
+            )}
+          >
+            <span className={cn("size-2 rounded-full", active ? "bg-primary animate-pulse" : "bg-warning")} />
+            Workstation-01 [{active ? "Active" : "Paused"}]
+          </span>
+          <button
+            onClick={toggleStream}
+            aria-pressed={active}
+            className={cn(
+              "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-500",
+              active
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-warning text-warning-foreground hover:bg-warning/90",
+            )}
+          >
+            {active ? <Pause className="size-4" /> : <Play className="size-4" />}
+            {active ? "Active (Streaming)" : "Paused"}
+          </button>
         </div>
       </header>
 
@@ -331,29 +423,72 @@ function Dashboard() {
         </Panel>
 
         <Panel className="flex flex-col overflow-hidden border border-[#CBD5E1] bg-[#F1F5F9] shadow-sm">
-          <div className="flex items-center justify-between border-b border-[#CBD5E1] bg-card px-6 py-4">
-            <h2 className="flex items-center gap-2 text-sm font-semibold text-[#0F172A]">
-              <Terminal className="size-4 text-[#475569]" /> Live Kernel Log
-              <span className="font-mono text-xs font-normal text-[#64748B]">{logs.length} lines</span>
-            </h2>
-            <button
-              onClick={() => setLogs([])}
-              className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs text-[#64748B] hover:bg-[#E2E8F0] hover:text-[#0F172A] transition-colors"
-            >
-              <Trash2 className="size-3.5" /> Clear Logs
-            </button>
+          {/* Terminal Control Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#CBD5E1] bg-card px-6 py-3.5">
+            <div className="flex items-center gap-3">
+              <h2 className="flex items-center gap-2 text-sm font-semibold text-[#0F172A]">
+                <Terminal className="size-4 text-[#475569]" /> Live Kernel Log
+                <span className="font-mono text-xs font-normal text-[#64748B]">
+                  {filteredLogs.length} / {logs.length} lines
+                </span>
+              </h2>
+
+              {/* Level Filter Pills */}
+              <div className="hidden items-center rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] p-0.5 text-xs font-medium sm:flex">
+                {(["ALL", "INFO", "WARN", "DEBUG"] as const).map((lvl) => (
+                  <button
+                    key={lvl}
+                    onClick={() => setLogFilter(lvl)}
+                    className={`rounded-md px-2 py-0.5 font-mono text-[11px] transition-all ${
+                      logFilter === lvl
+                        ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                        : "text-[#64748B] hover:text-[#0F172A]"
+                    }`}
+                  >
+                    {lvl}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              {/* Quick Search Input */}
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-[#64748B]" />
+                <input
+                  type="text"
+                  value={logSearch}
+                  onChange={(e) => setLogSearch(e.target.value)}
+                  placeholder="Filter logs..."
+                  className="w-28 sm:w-36 rounded-md border border-[#CBD5E1] bg-[#F8FAFC] pl-7 pr-2.5 py-1 text-xs text-[#0F172A] outline-hidden placeholder:text-[#94A3B8] focus:border-primary focus:w-44 transition-all"
+                />
+              </div>
+
+              <button
+                onClick={() => setLogs([])}
+                className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs text-[#64748B] hover:bg-[#E2E8F0] hover:text-[#0F172A] transition-colors"
+                title="Clear all recorded kernel logs"
+              >
+                <Trash2 className="size-3.5" /> Clear
+              </button>
+            </div>
           </div>
+
           <div
             ref={termRef}
             className="min-h-[240px] max-h-[380px] overflow-y-auto border-t border-[#CBD5E1] bg-[#F1F5F9] p-4 font-mono text-[14px] leading-relaxed text-[#0F172A] scrollbar-thin scrollbar-thumb-slate-400"
             style={{ fontFamily: '"JetBrains Mono", "Fira Code", ui-monospace, monospace', fontSize: "0.875rem" }}
           >
-            {logs.length === 0 ? (
+            {filteredLogs.length === 0 ? (
               <p className="text-[#64748B]">
-                {active ? "waiting for kernel events…" : "stream paused — no new events"}
+                {logSearch || logFilter !== "ALL"
+                  ? "no logs match current filter criteria"
+                  : active
+                    ? "waiting for kernel events…"
+                    : "stream paused — no new events"}
               </p>
             ) : (
-              logs.map((l) => (
+              filteredLogs.map((l) => (
                 <p key={l.id} className="whitespace-pre-wrap break-words py-0.5 text-[#0F172A]">
                   <span className="text-[#64748B]">{l.time} </span>
                   <span className={levelClass[l.level] ?? "font-bold text-[#0284C7]"}>[{l.level}]</span>{" "}

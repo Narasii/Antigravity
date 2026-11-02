@@ -1,4 +1,5 @@
 import { ArrowRight, Github } from "lucide-react";
+import { useEffect, useState } from "react";
 import { GITHUB_URL } from "./links";
 
 /** Deterministic pseudo-telemetry series for the static preview graphs. */
@@ -19,15 +20,62 @@ function Sparkline({ seed, className }: { seed: number; className?: string }) {
   );
 }
 
-const vitals = [
-  { label: "CPU-to-GPU Latency", value: "0.40", unit: "ms", seed: 1 },
-  { label: "Mmap Bandwidth", value: "12.1", unit: "GB/s", seed: 2.4 },
-  { label: "Cache Hit", value: "94.5", unit: "%", seed: 4.1 },
-];
-
-const bars = [62, 74, 58, 81, 69, 88, 77, 92, 71, 84, 79, 90, 66, 86, 73, 95, 82, 78, 89, 93];
+const initialBars = [62, 74, 58, 81, 69, 88, 77, 92, 71, 84, 79, 90, 66, 86, 73, 95, 82, 78, 89, 93];
 
 function PreviewCard() {
+  const [tick, setTick] = useState(0);
+  const [latency, setLatency] = useState(0.4);
+  const [bandwidth, setBandwidth] = useState(12.1);
+  const [cacheHit, setCacheHit] = useState(94.5);
+  const [bars, setBars] = useState<number[]>(initialBars);
+  const [batchNum, setBatchNum] = useState(144);
+  const [logs, setLogs] = useState([
+    { time: "12:10:00.052", level: "INFO", text: "mmap buffer @ 0x7fff3a2c0000" },
+    { time: "12:10:00.311", level: "DEBUG", text: "Batch #142 ingested 0.40 ms" },
+    { time: "12:10:00.488", level: "DEBUG", text: "page cache hit 94.5%" },
+    { time: "12:10:00.902", level: "INFO", text: "zero-copy bypass active" },
+    { time: "12:10:01.240", level: "DEBUG", text: "Batch #143 ingested 0.41 ms" },
+  ]);
+
+  // Periodic live telemetry simulation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTick((t) => t + 0.3);
+      const newLatency = Number((0.39 + Math.random() * 0.03).toFixed(2));
+      const newBandwidth = Number((11.9 + Math.random() * 0.5).toFixed(1));
+      const newCache = Number((94.2 + Math.random() * 0.7).toFixed(1));
+      setLatency(newLatency);
+      setBandwidth(newBandwidth);
+      setCacheHit(newCache);
+
+      // Slide bars
+      setBars((prev) => {
+        const nextVal = Math.floor(65 + Math.random() * 32);
+        return [...prev.slice(1), nextVal];
+      });
+
+      // Append live batch log
+      setBatchNum((b) => {
+        const nextB = b + 1;
+        const now = new Date();
+        const timeStr = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}.${String(now.getMilliseconds()).padStart(3, "0")}`;
+        setLogs((prev) => [
+          ...prev.slice(1),
+          { time: timeStr, level: "DEBUG", text: `Batch #${nextB} ingested ${newLatency.toFixed(2)} ms` },
+        ]);
+        return nextB;
+      });
+    }, 1600);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const vitals = [
+    { label: "CPU-to-GPU Latency", value: latency.toFixed(2), unit: "ms", seed: 1 + tick },
+    { label: "Mmap Bandwidth", value: bandwidth.toFixed(1), unit: "GB/s", seed: 2.4 + tick },
+    { label: "Cache Hit", value: cacheHit.toFixed(1), unit: "%", seed: 4.1 + tick },
+  ];
+
   return (
     <div className="relative mx-auto mt-16 max-w-5xl">
       <div className="telemetry-card overflow-hidden rounded-xl border border-border bg-card">
@@ -37,7 +85,7 @@ function PreviewCard() {
           <span className="size-2.5 rounded-full bg-border" />
           <span className="ml-3 font-mono text-xs text-muted-foreground">nsx://workstation-01/telemetry</span>
           <span className="ml-auto flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground">
-            <span className="size-1.5 animate-pulse rounded-full bg-primary" /> streaming
+            <span className="size-1.5 animate-pulse rounded-full bg-emerald-500" /> live telemetry
           </span>
         </div>
 
@@ -58,20 +106,28 @@ function PreviewCard() {
           <div className="bg-card p-5 text-left">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>Batch ingest throughput</span>
-              <span className="font-mono">last 20 windows</span>
+              <span className="font-mono text-primary font-medium">streaming window</span>
             </div>
             <div className="mt-4 flex h-28 items-end gap-1.5">
               {bars.map((b, i) => (
-                <span key={i} className="flex-1 rounded-sm bg-primary/25" style={{ height: `${b}%` }} />
+                <span
+                  key={i}
+                  className="flex-1 rounded-sm bg-primary/25 transition-all duration-300 hover:bg-primary/50"
+                  style={{ height: `${b}%` }}
+                />
               ))}
             </div>
           </div>
           <div className="bg-terminal p-5 text-left font-mono text-[11px] leading-relaxed text-slate-100">
-            <p><span className="text-slate-400">12:10:00.052</span> <span className="text-primary">[INFO]</span> mmap buffer @ 0x7fff3a2c0000</p>
-            <p><span className="text-slate-400">12:10:00.311</span> <span className="text-slate-400">[DEBUG]</span> Batch #142 ingested 0.40 ms</p>
-            <p><span className="text-slate-400">12:10:00.488</span> <span className="text-slate-400">[DEBUG]</span> page cache hit 94.5%</p>
-            <p><span className="text-slate-400">12:10:00.902</span> <span className="text-primary">[INFO]</span> zero-copy bypass active</p>
-            <p><span className="text-slate-400">12:10:01.240</span> <span className="text-slate-400">[DEBUG]</span> Batch #143 ingested 0.41 ms</p>
+            {logs.map((log, i) => (
+              <p key={i}>
+                <span className="text-slate-400">{log.time}</span>{" "}
+                <span className={log.level === "INFO" ? "text-primary font-bold" : "text-slate-400 font-semibold"}>
+                  [{log.level}]
+                </span>{" "}
+                {log.text}
+              </p>
+            ))}
           </div>
         </div>
       </div>

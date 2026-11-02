@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { HardwareCalculator } from "./HardwareCalculator";
 
 const rows = [
   { metric: "CPU-to-GPU latency (per batch)", baseline: "1.12 ms", nsx: "0.40 ms" },
@@ -60,6 +61,11 @@ export function Benchmarks() {
         <p className="mt-4 font-mono text-[11px] text-muted-foreground">
           Simulated reference profile · replace with measured results before publication.
         </p>
+
+        {/* ── Interactive ROI / Hardware Calculator ── */}
+        <div className="reveal mt-10" style={{ transitionDelay: "380ms" }}>
+          <HardwareCalculator />
+        </div>
       </div>
     </section>
   );

@@ -1,5 +1,6 @@
 import { Activity, Cpu, HardDrive, Layers } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { DataPipelineVisualizer } from "./DataPipelineVisualizer";
 
 const pillars = [
   {
@@ -66,6 +67,11 @@ export function Pillars() {
               <p className="mt-6 font-mono text-[11px] text-muted-foreground">{p.tag}</p>
             </article>
           ))}
+        </div>
+
+        {/* ── Interactive Data Flow Visualizer ── */}
+        <div className="reveal mt-12" style={{ transitionDelay: "450ms" }}>
+          <DataPipelineVisualizer />
         </div>
       </div>
     </section>
