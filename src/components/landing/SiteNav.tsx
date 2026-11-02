@@ -25,9 +25,10 @@ export function SiteNav() {
             <li key={l.id}>
               <a
                 href={`#${l.id}`}
-                className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="group relative rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
               >
                 {l.label}
+                <span className="absolute inset-x-3 bottom-1 h-px scale-x-0 rounded-full bg-primary transition-transform duration-200 group-hover:scale-x-100" />
               </a>
             </li>
           ))}
@@ -38,13 +39,13 @@ export function SiteNav() {
             href={GITHUB_URL}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="flex items-center gap-1.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground hover:bg-card"
           >
             <Github className="size-4" /> GitHub
           </a>
           <Link
             to="/dashboard"
-            className="rounded-md bg-foreground px-3.5 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90"
+            className="btn-press rounded-md bg-foreground px-3.5 py-2 text-sm font-medium text-background"
           >
             Launch Demo
           </Link>

@@ -1,5 +1,5 @@
-/** Placeholder until the real repository address is supplied. */
-export const GITHUB_URL = "https://github.com/";
+/** GitHub repository for Neural Stream Foundry. */
+export const GITHUB_URL = "https://github.com/Narasii/Antigravity";
 
 export const sectionLinks = [
   { id: "architecture", label: "Architecture" },

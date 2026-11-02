@@ -45,7 +45,7 @@ export const Route = createFileRoute("/dashboard")({
 const MAX_LOGS = 250;
 
 function Panel({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <section className={cn("glass rounded-2xl", className)}>{children}</section>;
+  return <section className={cn("glass telemetry-card rounded-2xl", className)}>{children}</section>;
 }
 
 function MetricCard({

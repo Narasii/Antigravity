@@ -30,9 +30,8 @@ const bars = [62, 74, 58, 81, 69, 88, 77, 92, 71, 84, 79, 90, 66, 86, 73, 95, 82
 function PreviewCard() {
   return (
     <div className="relative mx-auto mt-16 max-w-5xl">
-      <div className="absolute -inset-x-10 -top-10 bottom-0 -z-10 rounded-[2rem] bg-primary/5 blur-3xl" />
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-2xl shadow-background">
-        <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+      <div className="telemetry-card overflow-hidden rounded-xl border border-border bg-card">
+        <div className="flex items-center gap-2 border-b border-border bg-secondary/40 px-4 py-3">
           <span className="size-2.5 rounded-full bg-border" />
           <span className="size-2.5 rounded-full bg-border" />
           <span className="size-2.5 rounded-full bg-border" />
@@ -44,7 +43,7 @@ function PreviewCard() {
 
         <div className="grid gap-px bg-border sm:grid-cols-3">
           {vitals.map((v) => (
-            <div key={v.label} className="bg-card p-5 text-left">
+            <div key={v.label} className="bg-card p-5 text-left transition-colors hover:bg-secondary/30">
               <p className="text-xs text-muted-foreground">{v.label}</p>
               <p className="mt-2 font-mono text-3xl font-medium tabular-nums tracking-tight">
                 {v.value}
@@ -67,12 +66,12 @@ function PreviewCard() {
               ))}
             </div>
           </div>
-          <div className="bg-terminal p-5 text-left font-mono text-[11px] leading-relaxed">
-            <p><span className="text-muted-foreground">12:10:00.052</span> <span className="text-primary">[INFO]</span> mmap buffer @ 0x7fff3a2c0000</p>
-            <p><span className="text-muted-foreground">12:10:00.311</span> <span className="text-muted-foreground">[DEBUG]</span> Batch #142 ingested 0.40 ms</p>
-            <p><span className="text-muted-foreground">12:10:00.488</span> <span className="text-muted-foreground">[DEBUG]</span> page cache hit 94.5%</p>
-            <p><span className="text-muted-foreground">12:10:00.902</span> <span className="text-primary">[INFO]</span> zero-copy bypass active</p>
-            <p><span className="text-muted-foreground">12:10:01.240</span> <span className="text-muted-foreground">[DEBUG]</span> Batch #143 ingested 0.41 ms</p>
+          <div className="bg-terminal p-5 text-left font-mono text-[11px] leading-relaxed text-slate-100">
+            <p><span className="text-slate-400">12:10:00.052</span> <span className="text-primary">[INFO]</span> mmap buffer @ 0x7fff3a2c0000</p>
+            <p><span className="text-slate-400">12:10:00.311</span> <span className="text-slate-400">[DEBUG]</span> Batch #142 ingested 0.40 ms</p>
+            <p><span className="text-slate-400">12:10:00.488</span> <span className="text-slate-400">[DEBUG]</span> page cache hit 94.5%</p>
+            <p><span className="text-slate-400">12:10:00.902</span> <span className="text-primary">[INFO]</span> zero-copy bypass active</p>
+            <p><span className="text-slate-400">12:10:01.240</span> <span className="text-slate-400">[DEBUG]</span> Batch #143 ingested 0.41 ms</p>
           </div>
         </div>
       </div>
@@ -86,25 +85,25 @@ export function Hero() {
       <div className="grid-lines pointer-events-none absolute inset-0 -z-10" />
       <a
         href="#architecture"
-        className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3.5 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+        className="animate-fade-in inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3.5 py-1.5 text-xs text-muted-foreground transition-all duration-200 hover:text-foreground hover:border-primary/40 hover:bg-card"
       >
         <span className="rounded-full bg-primary/15 px-2 py-0.5 font-mono text-[10px] text-primary">v1.2</span>
         Kernel-Space Bypass Released
-        <ArrowRight className="size-3.5" />
+        <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
       </a>
 
-      <h1 className="mx-auto mt-8 max-w-4xl text-5xl font-semibold leading-[1.02] tracking-[-0.04em] sm:text-7xl">
+      <h1 className="animate-fade-up delay-100 mx-auto mt-8 max-w-4xl text-5xl font-semibold leading-[1.02] tracking-[-0.04em] sm:text-7xl">
         Act fast when hardware bottlenecks arise.
       </h1>
-      <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+      <p className="animate-fade-up delay-200 mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
         Complete zero-copy, memory-mapped (mmap) streaming framework for local foundation model fine-tuning and
         high-density MLSys execution.
       </p>
 
-      <div className="mt-10 flex flex-wrap justify-center gap-3">
+      <div className="animate-fade-up delay-300 mt-10 flex flex-wrap justify-center gap-3">
         <a
           href="#documentation"
-          className="rounded-md bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+          className="btn-press rounded-md bg-foreground px-5 py-2.5 text-sm font-medium text-background"
         >
           View Documentation
         </a>
@@ -112,13 +111,15 @@ export function Hero() {
           href={GITHUB_URL}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-2 rounded-md border border-border px-5 py-2.5 text-sm font-medium transition-colors hover:bg-card"
+          className="btn-press flex items-center gap-2 rounded-md border border-border px-5 py-2.5 text-sm font-medium transition-colors duration-200 hover:bg-card hover:border-primary/40"
         >
           <Github className="size-4" /> Explore GitHub
         </a>
       </div>
 
-      <PreviewCard />
+      <div className="animate-fade-up delay-500 animate-float">
+        <PreviewCard />
+      </div>
     </section>
   );
 }

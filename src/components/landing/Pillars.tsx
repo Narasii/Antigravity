@@ -1,4 +1,5 @@
 import { Activity, Cpu, HardDrive, Layers } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 const pillars = [
   {
@@ -28,24 +29,41 @@ const pillars = [
 ];
 
 export function Pillars() {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const els = sectionRef.current?.querySelectorAll(".reveal, .reveal-left");
+    if (!els) return;
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("visible"); observer.unobserve(e.target); } }),
+      { threshold: 0.15 }
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section id="architecture" className="scroll-mt-20 px-5 py-28">
+    <section id="architecture" className="scroll-mt-20 px-5 py-28" ref={sectionRef}>
       <div className="mx-auto max-w-6xl">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-primary">Architecture</p>
-        <h2 className="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">Unified MLSys Infrastructure</h2>
-        <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
+        <p className="reveal-left font-mono text-xs uppercase tracking-[0.2em] text-primary">Architecture</p>
+        <h2 className="reveal mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.03em] sm:text-5xl" style={{ transitionDelay: "80ms" }}>Unified MLSys Infrastructure</h2>
+        <p className="reveal mt-5 max-w-2xl text-lg text-muted-foreground" style={{ transitionDelay: "160ms" }}>
           One framework from storage to streaming multiprocessor. Four pillars keep the data path short and visible.
         </p>
 
-        <div className="mt-14 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2">
-          {pillars.map((p) => (
-            <article key={p.title} className="group bg-card p-8 transition-colors hover:bg-secondary">
-              <span className="grid size-10 place-items-center rounded-lg border border-border bg-background text-primary">
+        <div className="mt-14 grid gap-6 sm:grid-cols-2">
+          {pillars.map((p, i) => (
+            <article
+              key={p.title}
+              className="reveal telemetry-card group rounded-xl border border-border bg-card p-8 transition-all duration-300 hover:scale-[1.01] hover:shadow-md hover:border-slate-300"
+              style={{ transitionDelay: `${200 + i * 80}ms` }}
+            >
+              <span className="grid size-10 place-items-center rounded-lg border border-border bg-secondary/60 text-primary transition-colors duration-200 group-hover:border-primary/40 group-hover:bg-primary/10">
                 <p.icon className="size-5" />
               </span>
-              <h3 className="mt-6 text-lg font-semibold tracking-tight">{p.title}</h3>
+              <h3 className="mt-6 text-lg font-semibold tracking-tight text-foreground">{p.title}</h3>
               <p className="mt-2 leading-relaxed text-muted-foreground">{p.body}</p>
-              <p className="mt-6 font-mono text-[11px] text-muted-foreground/80">{p.tag}</p>
+              <p className="mt-6 font-mono text-[11px] text-muted-foreground">{p.tag}</p>
             </article>
           ))}
         </div>

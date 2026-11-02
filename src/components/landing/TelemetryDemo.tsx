@@ -1,5 +1,5 @@
 import { Check, Cpu, Database, Zap } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Slider } from "@/components/ui/slider";
 import { clampControl, controls, defaultConfig, targetMetrics, type PipelineConfig } from "@/components/dashboard/data";
@@ -10,8 +10,26 @@ const demoControls = controls.filter((c) => c.key === "batchSize" || c.key === "
 export function TelemetryDemo() {
   const [draft, setDraft] = useState<PipelineConfig>(defaultConfig);
   const [applied, setApplied] = useState<PipelineConfig>(defaultConfig);
+  const sectionRef = useRef<HTMLElement>(null);
   const m = targetMetrics(draft);
   const dirty = draft.batchSize !== applied.batchSize || draft.chunkWindow !== applied.chunkWindow;
+
+  useEffect(() => {
+    const els = sectionRef.current?.querySelectorAll(".reveal, .reveal-left");
+    if (!els) return;
+    const observer = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("visible");
+            observer.unobserve(e.target);
+          }
+        }),
+      { threshold: 0.12 }
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   const readouts = [
     { icon: Cpu, label: "CPU-to-GPU Latency", value: m.latency.toFixed(2), unit: "ms", pct: Math.min(100, (m.latency / 2.2) * 100) },
@@ -27,15 +45,20 @@ export function TelemetryDemo() {
   };
 
   return (
-    <section id="telemetry" className="scroll-mt-20 border-t border-border px-5 py-28">
+    <section id="telemetry" className="scroll-mt-20 border-t border-border px-5 py-28" ref={sectionRef}>
       <div className="mx-auto max-w-6xl">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-primary">Telemetry</p>
-        <h2 className="mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">Tune the pipeline. Watch it respond.</h2>
-        <p className="mt-5 max-w-2xl text-lg text-muted-foreground">
+        <p className="reveal-left font-mono text-xs uppercase tracking-[0.2em] text-primary">Telemetry</p>
+        <h2 className="reveal mt-4 max-w-2xl text-4xl font-semibold tracking-[-0.03em] sm:text-5xl" style={{ transitionDelay: "80ms" }}>
+          Tune the pipeline. Watch it respond.
+        </h2>
+        <p className="reveal mt-5 max-w-2xl text-lg text-muted-foreground" style={{ transitionDelay: "160ms" }}>
           Drag the sliders to see how batch size and chunk window shift the steady-state vitals. Figures are simulated.
         </p>
 
-        <div className="mt-14 grid overflow-hidden rounded-xl border border-border bg-card lg:grid-cols-[1fr_1.1fr]">
+        <div
+          className="reveal telemetry-card mt-14 grid overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:scale-[1.01] hover:shadow-md lg:grid-cols-[1fr_1.1fr]"
+          style={{ transitionDelay: "220ms" }}
+        >
           <div className="space-y-10 border-b border-border p-8 lg:border-b-0 lg:border-r">
             {demoControls.map((spec) => (
               <div key={spec.key}>

@@ -69,49 +69,48 @@
 
 :root {
   --radius: 0.625rem;
-  /* Obsidian #0B0F12, charcoal #11161D, steel-gray borders #222A35 */
-  --background: oklch(0.165 0.009 241);
-  --foreground: oklch(0.95 0.008 250);
-  --card: oklch(0.198 0.016 257);
-  --card-foreground: oklch(0.95 0.008 250);
-  --popover: oklch(0.21 0.016 257);
-  --popover-foreground: oklch(0.95 0.008 250);
-  /* Steel blue */
-  --primary: oklch(0.72 0.07 250);
-  --primary-foreground: oklch(0.17 0.02 255);
-  --secondary: oklch(0.25 0.02 262);
-  --secondary-foreground: oklch(0.95 0.008 250);
-  --muted: oklch(0.25 0.02 262);
-  --muted-foreground: oklch(0.7 0.012 250);
-  --accent: oklch(0.26 0.022 262);
-  --accent-foreground: oklch(0.97 0.005 250);
-  --destructive: oklch(0.66 0.2 22);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.282 0.023 256);
-  --input: oklch(0.32 0.023 256);
-  --ring: oklch(0.72 0.07 250);
-  --chart-1: oklch(0.72 0.07 250);
-  --chart-2: oklch(0.8 0.16 75);
-  --chart-3: oklch(0.72 0.13 235);
-  --chart-4: oklch(0.68 0.19 22);
-  --chart-5: oklch(0.7 0.16 290);
-  --sidebar: oklch(0.18 0.02 262);
-  --sidebar-foreground: oklch(0.9 0.01 250);
-  --sidebar-primary: oklch(0.72 0.07 250);
-  --sidebar-primary-foreground: oklch(0.17 0.02 255);
-  --sidebar-accent: oklch(0.25 0.02 262);
-  --sidebar-accent-foreground: oklch(0.97 0.005 250);
-  --sidebar-border: oklch(0.85 0.02 255 / 10%);
-  --sidebar-ring: oklch(0.72 0.07 250);
+  /* Clean light-mode enterprise aesthetic: #F8FAFC background, slate-900 foreground, slate-200 border */
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  /* Steel blue #2563EB / #3B82F6 */
+  --primary: #2563EB;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #0F172A;
+  --muted: #F8FAFC;
+  --muted-foreground: #64748B;
+  --accent: #F1F5F9;
+  --accent-foreground: #0F172A;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #3B82F6;
+  --chart-1: #2563EB;
+  --chart-2: #F59E0B;
+  --chart-3: #0EA5E9;
+  --chart-4: #EF4444;
+  --chart-5: #8B5CF6;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0F172A;
+  --sidebar-primary: #2563EB;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F1F5F9;
+  --sidebar-accent-foreground: #0F172A;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #3B82F6;
 
-  --terminal: oklch(0.14 0.008 245);
-  --warning: oklch(0.78 0.09 75);
-  /* Muted silver for memory-map related readouts */
-  --memory: oklch(0.82 0.02 245);
-  --glass: oklch(0.198 0.016 257 / 80%);
-  --glass-border: oklch(0.282 0.023 256);
-  --warning-foreground: oklch(0.2 0.04 70);
-  --grid-line: oklch(0.282 0.023 256 / 45%);
+  --terminal: #0F172A;
+  --warning: #D97706;
+  --warning-foreground: #FFFFFF;
+  --memory: #475569;
+  --glass: rgb(255 255 255 / 85%);
+  --glass-border: #E2E8F0;
+  --grid-line: #E2E8F0;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
@@ -119,6 +118,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    background-color: var(--color-background);
   }
 
   * {
@@ -127,10 +127,7 @@
 
   body {
     font-family: var(--font-sans);
-    background-color: var(--color-background);
-    background-image:
-      radial-gradient(70rem 36rem at 50% -12%, oklch(0.72 0.07 250 / 9%), transparent 70%);
-    background-attachment: fixed;
+    background-color: transparent;
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
   }
@@ -140,7 +137,7 @@
   background-color: var(--glass);
   border: 1px solid var(--glass-border);
   backdrop-filter: blur(18px) saturate(130%);
-  box-shadow: 0 1px 0 0 oklch(1 0 0 / 4%) inset, 0 20px 40px -24px oklch(0 0 0 / 60%);
+  box-shadow: 0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.06);
 }
 
 @utility grid-lines {
@@ -157,5 +154,250 @@
 }
 
 @utility animate-marquee {
-  animation: marquee 38s linear infinite;
+  animation: marquee 55s linear infinite;
+}
+
+/* ── Scroll-reveal ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@utility animate-fade-up {
+  animation: fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility animate-fade-in {
+  animation: fade-in 0.5s ease both;
+}
+
+@utility animate-slide-left {
+  animation: slide-in-left 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+/* delay helpers */
+@utility delay-100 { animation-delay: 100ms; }
+@utility delay-200 { animation-delay: 200ms; }
+@utility delay-300 { animation-delay: 300ms; }
+@utility delay-400 { animation-delay: 400ms; }
+@utility delay-500 { animation-delay: 500ms; }
+@utility delay-600 { animation-delay: 600ms; }
+@utility delay-700 { animation-delay: 700ms; }
+
+/* ── Scroll-triggered reveal micro-interactions (y: 20 -> 0, opacity: 0 -> 1) ── */
+.reveal,
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.visible,
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Telemetry & Enterprise Cards: subtle scale lift on hover with refined slate drop-shadow transition ── */
+.telemetry-card {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.25s ease;
+  box-shadow: 0 1px 2px 0 rgb(15 23 42 / 0.05); /* shadow-sm */
+}
+.telemetry-card:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 6px -1px rgb(15 23 42 / 0.1), 0 2px 4px -2px rgb(15 23 42 / 0.1); /* shadow-md */
+  border-color: #CBD5E1;
+}
+
+/* ── Button interactions ── */
+.btn-press {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.btn-press:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgb(37 99 235 / 0.2);
+}
+.btn-press:active {
+  transform: translateY(0px);
+  box-shadow: none;
+}
+
+/* ════════════════════════════════════════
+   Precision Tech HUD Reticle Cursor
+   ════════════════════════════════════════ */
+
+.tech-cursor-active,
+.tech-cursor-active a,
+.tech-cursor-active button,
+.tech-cursor-active [role="button"],
+.tech-cursor-active input,
+.tech-cursor-active textarea,
+.tech-cursor-active select,
+.tech-cursor-active label {
+  cursor: none !important;
+}
+
+@media (pointer: coarse), (hover: none) {
+  .tech-cursor-active,
+  .tech-cursor-active * {
+    cursor: auto !important;
+  }
+  .tech-center-point,
+  .tech-reticle-frame {
+    display: none !important;
+  }
+}
+
+/* Tiny, sharp center point */
+.tech-center-point {
+  width: 3.5px;
+  height: 3.5px;
+  border-radius: 50%;
+  background-color: #475569; /* Slate-600 */
+  box-shadow: 0 0 0 1px rgba(248, 250, 252, 0.9);
+  pointer-events: none;
+  z-index: 9999;
+  transition: background-color 0.18s ease, width 0.18s ease, height 0.18s ease, box-shadow 0.18s ease;
+}
+
+.tech-center-point.dot-locked {
+  background-color: #3B82F6; /* Steel-blue accent tint */
+  width: 4.5px;
+  height: 4.5px;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+/* Reticle frame carrying 4 corner brackets */
+.tech-reticle-frame {
+  pointer-events: none;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Four minimalist technical corner angles (#475569) */
+.reticle-corner {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-color: #475569; /* Clean slate */
+  border-style: solid;
+  border-width: 0;
+  transition: border-color 0.22s ease, width 0.22s ease, height 0.22s ease;
+}
+
+.reticle-corner-tl {
+  top: 0;
+  left: 0;
+  border-top-width: 1.25px;
+  border-left-width: 1.25px;
+}
+
+.reticle-corner-tr {
+  top: 0;
+  right: 0;
+  border-top-width: 1.25px;
+  border-right-width: 1.25px;
+}
+
+.reticle-corner-bl {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 1.25px;
+  border-left-width: 1.25px;
+}
+
+.reticle-corner-br {
+  bottom: 0;
+  right: 0;
+  border-bottom-width: 1.25px;
+  border-right-width: 1.25px;
+}
+
+/* Micro center axis ticks */
+.reticle-axis {
+  position: absolute;
+  background-color: #475569;
+  opacity: 0.35;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+.reticle-axis-top {
+  top: 1.5px;
+  left: 50%;
+  width: 1px;
+  height: 2.5px;
+  transform: translateX(-50%);
+}
+.reticle-axis-bottom {
+  bottom: 1.5px;
+  left: 50%;
+  width: 1px;
+  height: 2.5px;
+  transform: translateX(-50%);
+}
+.reticle-axis-left {
+  left: 1.5px;
+  top: 50%;
+  width: 2.5px;
+  height: 1px;
+  transform: translateY(-50%);
+}
+.reticle-axis-right {
+  right: 1.5px;
+  top: 50%;
+  width: 2.5px;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+/* Target Locking State: corner brackets animate outward / snap to lock on with #3B82F6 steel-blue tint */
+.reticle-locked .reticle-corner {
+  border-color: #3B82F6; /* Steel-blue accent tint */
+  width: 8px;
+  height: 8px;
+}
+
+.reticle-locked .reticle-axis {
+  background-color: #3B82F6;
+  opacity: 0.7;
+}
+
+.reticle-clicking .reticle-corner {
+  border-color: #1D4ED8;
+  width: 5px;
+  height: 5px;
 }
