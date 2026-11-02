@@ -155,7 +155,13 @@ function ControlRow({
   );
 }
 
-const levelClass = { INFO: "text-primary", DEBUG: "text-muted-foreground", WARN: "text-warning" } as const;
+const levelClass: Record<string, string> = {
+  INFO: "font-bold text-[#0284C7]",
+  SUCCESS: "font-bold text-[#059669]",
+  WARN: "font-bold text-[#D97706]",
+  ERROR: "font-bold text-[#DC2626]",
+  DEBUG: "font-semibold text-[#64748B]",
+};
 
 function Dashboard() {
   const [state, setState] = useState<StreamState>("active");
@@ -324,33 +330,38 @@ function Dashboard() {
           </p>
         </Panel>
 
-        <Panel className="flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between border-b border-border px-6 py-4">
-            <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <Terminal className="size-4 text-muted-foreground" /> Live Kernel Log
-              <span className="font-mono text-xs font-normal text-muted-foreground">{logs.length} lines</span>
+        <Panel className="flex flex-col overflow-hidden border border-[#CBD5E1] bg-[#F1F5F9] shadow-sm">
+          <div className="flex items-center justify-between border-b border-[#CBD5E1] bg-card px-6 py-4">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-[#0F172A]">
+              <Terminal className="size-4 text-[#475569]" /> Live Kernel Log
+              <span className="font-mono text-xs font-normal text-[#64748B]">{logs.length} lines</span>
             </h2>
             <button
               onClick={() => setLogs([])}
-              className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+              className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs text-[#64748B] hover:bg-[#E2E8F0] hover:text-[#0F172A] transition-colors"
             >
               <Trash2 className="size-3.5" /> Clear Logs
             </button>
           </div>
-          <div ref={termRef} className="h-[380px] overflow-y-auto bg-terminal/80 px-6 py-5 font-mono text-xs leading-relaxed">
+          <div
+            ref={termRef}
+            className="min-h-[240px] max-h-[380px] overflow-y-auto border-t border-[#CBD5E1] bg-[#F1F5F9] p-4 font-mono text-[14px] leading-relaxed text-[#0F172A] scrollbar-thin scrollbar-thumb-slate-400"
+            style={{ fontFamily: '"JetBrains Mono", "Fira Code", ui-monospace, monospace', fontSize: "0.875rem" }}
+          >
             {logs.length === 0 ? (
-              <p className="text-muted-foreground">
+              <p className="text-[#64748B]">
                 {active ? "waiting for kernel events…" : "stream paused — no new events"}
               </p>
             ) : (
               logs.map((l) => (
-                <p key={l.id} className="whitespace-pre-wrap break-words">
-                  <span className="text-muted-foreground/70">{l.time} </span>
-                  <span className={levelClass[l.level]}>[{l.level}]</span> <span className="text-foreground/90">{l.text}</span>
+                <p key={l.id} className="whitespace-pre-wrap break-words py-0.5 text-[#0F172A]">
+                  <span className="text-[#64748B]">{l.time} </span>
+                  <span className={levelClass[l.level] ?? "font-bold text-[#0284C7]"}>[{l.level}]</span>{" "}
+                  <span className="text-[#0F172A]">{l.text}</span>
                 </p>
               ))
             )}
-            {active && <span className="inline-block h-3.5 w-2 animate-pulse bg-primary align-middle" />}
+            {active && <span className="inline-block h-3.5 w-2 animate-pulse bg-[#0284C7] align-middle ml-1" />}
           </div>
         </Panel>
       </div>
